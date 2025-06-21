@@ -1,0 +1,59 @@
+﻿@model string
+
+<form id="bookingForm">
+    <input type="text" id="serviceType" value="@Model" />
+
+    <div class="mb-3">
+        <label class="form-label">Full Name*</label>
+        <input type="text" class="form-control" id="fullName" placeholder="Enter your full name" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Phone Number*</label>
+        <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter your phone number" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Pick-Up Date and Time*</label>
+        <input type="datetime-local" class="form-control" id="pickupDateTime" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Pick-Up Location*</label>
+        <input type="text" class="form-control" id="pickupLocation" placeholder="Enter pick-up location" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Reason* </label>
+        <select id="reasonSelect" class="form-control" required>
+            <option value="" disabled selected>Select reason for service</option>
+            <option value="ALS">Accident</option>
+            <option value="Patient Transfer">Patient Transfer</option>
+            <option value="Medical Utility">Utility Transport</option>
+            <option value="Event Medical">Event Standby</option>
+            <option value="Air Ambulance">Air Evacuation</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label"> Vehicle*</label>
+        <select class="form-select" id="vehicleType" required>
+            <option value="" disabled selected>Select vehicle type</option>
+            <option value="ALS">Type I)</option>
+            <option value="BLS">Type II</option>
+            <option value="Patient Transport"> Type III</option>
+            <option value="Medical Utility">Medical Utility Vehicle</option>
+            <option value="Event Medical">Event Medical Ambulance</option>
+            <option value="Air Ambulance">Air Ambulance</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Pick-Up Address</label>
+        <input type="text" class="form-control" id="pickupAddress" placeholder="Enter pick-up address">
+    </div>
+
+    <button type="submit" class="btn btn bg-success w-100">Book Ambulance</button>
+</form>
+
+

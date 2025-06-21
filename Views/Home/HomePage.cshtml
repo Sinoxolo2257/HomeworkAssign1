@@ -1,0 +1,88 @@
+﻿
+@{
+    ViewBag.Title = "HomePage";
+}
+
+<div class="container mt-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4">Welcome to RescueBus</h1>
+            <p class="lead">Your reliable transportation service for emergency situations.</p>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-lg">
+            <div class="card-body text-center p-5">
+                <div class="icon-container mb-4">
+                    <i class="bi bi-ambulance text-danger" style="font-size:3rem;"></i>
+                </div>
+                <h2 class="card-title">Book Ambulance</h2>
+                <p class="card-text">Book a non-emergency smooth ride with our qualified team.</p>
+                <a href="@Url.Action("ServiceType", "Home")" class="btn btn-primary btn-lg mt-3 px-4">Book Now</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-lg">
+            <div class="card-body text-center p-5">
+                <div class="icon-container mb-4">
+                    <i class="bi bi-exclamation-triangle-fill" style="font-size:3rem;"></i>
+                </div>
+                <h2 class="card-title">Emergency SOS</h2>
+                <p class="card-text">In case of emergency, press the SOS button to alert our team.</p>
+                <button class="btn btn-danger btn-lg mt-3 px-4 sos-btn" id="sosButton">
+                    <i class="bi bi-activity"></i>Call for Help
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+@section Styles {
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 15px;
+    }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+    .icon-container {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        border-radius: 50%;
+    }
+
+    .bg-danger .icon-container {
+        background-color: #dc3545;
+    }
+
+    .sos-btn {
+        animation: pulse 1.5s infinite;
+    }
+</style>
+                }
+@section scripts {
+    
+    <script>
+        $(document).ready(function () {
+            $('#sosButton').click(function () {
+                if (confirm("Are you sure you are experiencing a life-threatning emergency?")) {
+                    window.location.href = '@Url.Action("ConfirmBooking","Home")?emergency=true';
+                }
+            });
+        });
+    </script>
+    }

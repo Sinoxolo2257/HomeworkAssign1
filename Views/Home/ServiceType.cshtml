@@ -1,0 +1,90 @@
+﻿@{
+    ViewBag.Title = "ServiceType";
+}
+
+@section styles {
+    <style>
+        .service-header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+            .service-header h2 {
+                color: #343a40;
+                font-weight: bold;
+            }
+
+        .service-card {
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
+            padding: 20px;
+            transition: transform 0.2s, background-color 0.2s;
+            margin-bottom: 20px;
+            text-align: center;
+            background-color: #ffffff;
+            cursor: pointer;
+        }
+
+            .service-card:hover {
+                transform: translateY(-5px);
+                background-color: #f1f1f1;
+            }
+
+            .service-card h4 {
+                color: #343a40;
+                font-weight: bold;
+            }
+    </style>
+}
+
+<div class="service-header">
+    <h2>Select Your Medical Service</h2>
+    <p>Choose the type of ambulance service you require:</p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="service-card" onclick="window.location.href='@Url.Action("ALS", "Home")'">
+            <h4>Advanced Life Support (ALS)</h4>
+            <p>For critical emergencies requiring advanced medical care.</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="service-card" onclick="window.location.href='@Url.Action("BLS", "Home")'">
+            <h4>Basic Life Support (BLS)</h4>
+            <p>For non-critical emergencies requiring basic medical care.</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="service-card" onclick="window.location.href='@Url.Action("PatientTransport", "Home")'">
+            <h4>Patient Transport</h4>
+            <p>For patients who require assistance to and from the hospital.</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="service-card" onclick="window.location.href='@Url.Action("MedicalUtility", "Home")'">
+            <h4>Medical Utility Vehicle</h4>
+            <p>Advanced vans designed for safe patient transportation.</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="service-card" onclick="window.location.href='@Url.Action("EventMedical", "Home")'">
+            <h4>Event Medical Ambulance</h4>
+            <p>For on-site medical services at concerts, sports, and events.</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="service-card" onclick="window.location.href='@Url.Action("AirAmbulance", "Home")'">
+            <h4>Air Ambulance</h4>
+            <p>Long-distance transportation via aircraft for emergency or scheduled care.</p>
+        </div>
+    </div>
+</div>
