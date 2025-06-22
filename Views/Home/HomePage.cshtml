@@ -1,6 +1,8 @@
 ﻿
 @{
-    ViewBag.Title = "HomePage";
+    ViewBag.Title = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
 }
 
 <div class="container mt-5">
@@ -19,7 +21,7 @@
                 </div>
                 <h2 class="card-title">Book Ambulance</h2>
                 <p class="card-text">Book a non-emergency smooth ride with our qualified team.</p>
-                <a href="@Url.Action("ServiceType", "Home")" class="btn btn-primary btn-lg mt-3 px-4">Book Now</a>
+                <a href="@Url.Action("ServiceType", "Home")" class="btn btn-primary btn-lg mt-3 px-4">Book Now</a> @*Link to ServiceType action in Home controller*@
             </div>
         </div>
     </div>
@@ -32,9 +34,7 @@
                 </div>
                 <h2 class="card-title">Emergency SOS</h2>
                 <p class="card-text">In case of emergency, press the SOS button to alert our team.</p>
-                <button class="btn btn-danger btn-lg mt-3 px-4 sos-btn" id="sosButton">
-                    <i class="bi bi-activity"></i>Call for Help
-                </button>
+                <button class="btn btn-danger btn-lg mt-3 px-4 sos-btn" onclick="generateSOSBooking()">S.O.S Booking</button> @*Calls the generate SOS booking function in JS*@
             </div>
         </div>
     </div>
@@ -77,12 +77,46 @@
 @section scripts {
     
     <script>
-        $(document).ready(function () {
-            $('#sosButton').click(function () {
-                if (confirm("Are you sure you are experiencing a life-threatning emergency?")) {
-                    window.location.href = '@Url.Action("ConfirmBooking","Home")?emergency=true';
-                }
-            });
-        });
+        function generateSOSBooking() {
+            //gets all the drivers and vehicles that are stored in local storage
+            const drivers = JSON.parse(localStorage.getItem("drivers") || "[]");
+            const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
+
+            if (drivers.length === 0 || vehicles.length === 0) {
+                alert("No drivers or vehicles available. Please try again later.");
+                return;
+            } // Check if drivers and vehicles are available
+
+            // Randomly select a driver and vehicle from the available lists
+            const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
+            //since each driver and vehicle are restrained to one servoce this is to find a vehicle service type that matches the driver's service type
+            const randomVehicle = vehicles.find(vehicle => vehicle.serviceType === randomDriver.serviceType);
+
+            if (!randomVehicle) {
+                alert("No matching vehicle for this driver.");
+                return;
+            }
+
+            // Create a SOS booking object with the selected driver and vehicle to pu in the booking congirmation page
+            const booking = {
+                bookingId: crypto.randomUUID(), // generates a globally unique identifier for booking ID
+                bookingDate: new Date().toISOString,
+                fullName: "S.O.S Emergency",
+                contactNumber: "Unknown",
+                pickupDateTime: new Date().toISOString,
+                reason: "Emergency SOS Booking",
+                driverId: randomDriver.driverId,
+                vehicleId: randomVehicle.vehicleId,
+                serviceType: randomDriver.serviceType,
+                pickupAddress: "Auto-dispatched",
+                isSOS: true
+            };
+
+            const bookings = JSON.parse(localStorage.getItem("bookings") || "[]"); // Get existing bookings from local storage
+            bookings.push(booking); // Add the new booking to the list
+            localStorage.setItem("bookings", JSON.stringify(bookings)); // Save the updated bookings list back to local storage
+            window.location.href = "@Url.Action("BookingConfirmation", "Home")"; // Redirect to BookingConfirmation action in Home controller
+            alert("S.O.S Booking has been successfully created!"); // Notify the user of successful booking
+        }
     </script>
     }

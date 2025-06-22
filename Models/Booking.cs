@@ -11,6 +11,8 @@ namespace HomeworkAssign1.Models
 		public DateTime BookingDate { get; set; }
         public string FullName { get; set; }
         public string ServiceType { get; set; }
+        public string Reason { get;set; }
+        public string PickupDateTime { get; set; }
         public string VehicleID { get; set; }
         public string Address { get; set; }
         public string ContactNumber { get; set; }

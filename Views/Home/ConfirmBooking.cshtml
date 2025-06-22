@@ -1,7 +1,71 @@
 ﻿
 @{
     ViewBag.Title = "ConfirmBooking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>ConfirmBooking</h2>
+@section styles {
+    <style>
+        .confirmation-card {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+        }
 
+            .confirmation-card h2 {
+                font-size: 1.1em;
+                margin-bottom: 20px;
+            }
+
+        .btn-back {
+            background-color: #007bff;
+            color: white;
+            margin-top: 20px;
+        }
+
+            .btn-back:hover {
+                background-color: #0056b3;
+            }
+    </style>
+
+}
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            const parameters = new URLSearchParams(window.location.search);
+            const bookingId = parameters.get('bookingId');
+
+            if (!bookingId) {
+                $('#bookingDetails').html('<p class="text-danger">Booking ID is missing. Please try again</p>');
+                return;
+            }
+
+            const bookings = JSON.parse(localStorage.getItem('bookings') || "[]");
+            const booking = bookings.find(b => b.id === bookingId);
+
+            if (!booking) {
+                $('#bookingDetails').html('<p class="text-danger">Booking not found. Please try again</p>');
+                return;
+            }
+
+            const detailsHtml = `
+                <h2>Booking Confirmation</h2>
+                <p><strong>Service Type:</strong> ${booking.serviceType}</p>
+                <p><strong>Full Name:</strong> ${booking.fullName}</p>
+                <p><strong>Contact Number:</strong> ${booking.contactNumber}</p>
+                <p><strong>Pick-Up Date and Time:</strong> ${booking.pickupDateTime}</p>
+                <p><strong>Pick-Up Address:</strong> ${booking.pickupAddress}</p>
+                <p><strong>Reason:</strong> ${booking.reason}</p>
+                <p><strong>Driver Name:</strong> ${booking.driverName}</p>
+                <p><strong>Vehicle ID:</strong> ${booking.vehicleId}</p>
+                <p><strong>License Plate:</strong> ${booking.licensePlate}</p>
+                <p><strong>Booking Type:</strong> ${booking.isSOS ? "S.O.S" : "Standard"}</p>
+            `;
+
+            $('#bookingDetails').html(detailsHtml);
+        });
+    </script>
+}

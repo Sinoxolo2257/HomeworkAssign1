@@ -11,7 +11,5 @@ namespace HomeworkAssign1.Models
         public string ServiceType { get; set; } 
         public string LicensePlate { get; set; }
         public string ImageUrl { get; set; } // URL to the vehicle's image
-        public string DriverID { get; set; } // ID of the driver assigned to this vehicle
-        public bool IsAvailable { get; set; } // Indicates if the vehicle is currently available for bookings
     }
 }

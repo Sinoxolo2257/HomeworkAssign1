@@ -1,59 +1,133 @@
 ﻿@model string
 
-<form id="bookingForm">
-    <input type="text" id="serviceType" value="@Model" />
+@{
+    string serviceType = Model;
+}
 
-    <div class="mb-3">
-        <label class="form-label">Full Name*</label>
-        <input type="text" class="form-control" id="fullName" placeholder="Enter your full name" required>
-    </div>
+@section styles{
+    <styles>
+        .form-wrapper {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 50px;
+        }
 
-    <div class="mb-3">
-        <label class="form-label">Phone Number*</label>
-        <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter your phone number" required>
-    </div>
+        label{
+        font-weight: 500;
+        }
 
-    <div class="mb-3">
-        <label class="form-label">Pick-Up Date and Time*</label>
-        <input type="datetime-local" class="form-control" id="pickupDateTime" required>
-    </div>
+        .btn-submit {
+        background-color: #28a745;
+        color: white;
+        font-weight: bold;
+        }
+        .btn-submit:hover {
+        background-color: #218838;
+        }
+    </styles>
+}
+}
 
-    <div class="mb-3">
-        <label class="form-label">Pick-Up Location*</label>
-        <input type="text" class="form-control" id="pickupLocation" placeholder="Enter pick-up location" required>
-    </div>
+<div class="form-wrapper">
+    <form id="bookingForm">
+        <input type="text" id="serviceType" value="@serviceType" />
 
-    <div class="mb-3">
-        <label class="form-label">Reason* </label>
-        <select id="reasonSelect" class="form-control" required>
-            <option value="" disabled selected>Select reason for service</option>
-            <option value="ALS">Accident</option>
-            <option value="Patient Transfer">Patient Transfer</option>
-            <option value="Medical Utility">Utility Transport</option>
-            <option value="Event Medical">Event Standby</option>
-            <option value="Air Ambulance">Air Evacuation</option>
-        </select>
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Full Name*</label>
+            <input type="text" class="form-control" id="fullName" placeholder="Enter your full name" required>
+        </div>
 
-    <div class="mb-3">
-        <label class="form-label"> Vehicle*</label>
-        <select class="form-select" id="vehicleType" required>
-            <option value="" disabled selected>Select vehicle type</option>
-            <option value="ALS">Type I)</option>
-            <option value="BLS">Type II</option>
-            <option value="Patient Transport"> Type III</option>
-            <option value="Medical Utility">Medical Utility Vehicle</option>
-            <option value="Event Medical">Event Medical Ambulance</option>
-            <option value="Air Ambulance">Air Ambulance</option>
-        </select>
-    </div>
+        <div class="mb-3">
+            <label for="contactNumber">Phone Number:*</label>
+            <input type="tel" class="form-control" id="contactNumber" placeholder="Enter your phone number" required>
+        </div>
 
-    <div class="mb-3">
-        <label class="form-label">Pick-Up Address</label>
-        <input type="text" class="form-control" id="pickupAddress" placeholder="Enter pick-up address">
-    </div>
+        <div class="mb-3">
+            <label class="form-label">Pick-Up Date and Time*</label>
+            <input type="datetime-local" class="form-control" id="pickupDateTime" required>
+        </div>
 
-    <button type="submit" class="btn btn bg-success w-100">Book Ambulance</button>
-</form>
+        <div class="mb-3">
+            <label class="form-label">Pick-Up Time*</label>
+            <input type="text" class="form-control" id="pickupDateTime" required>
+        </div>
 
+        <div class="mb-3">
+            <label class="form-label">Reason* </label>
+            <select id="reasonSelect" class="form-control" required>
+                <option value="" disabled selected>Select reason for service</option>
+                <option>Accident</option>
+                <option>Patient Transfer</option>
+                <option>Utility Transport</option>
+                <option>Event Standby</option>
+                <option>Air Evacuation</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="vehivleId">Vehicle:*</label>
+            <select id="driverId" class="form-control" required></select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Pick-Up Address</label>
+            <textarea id="pickupAddress" class="form-control" rows="3" placeholder="Enter pick-up address"> </textarea>
+        </div>
+
+        <button type="submit" class="btn btn bg-success w-100">Book Ambulance</button>
+    </form>
+</div>
+
+@section scripts{
+    <scripts>
+        $(document).ready(function(){
+        const serviceType = $('#serviceType').val();
+        const drivers = JSON.parse(localStorage.getItem("drivers"))||[];
+        const vehicles=JSON.parse(localStorage.getItem("vehicles"))||[];
+
+        @*Populate the vehicle dropdown*@
+        vehicles.forEach(vehicle => vehicle.serviceType===serviceType).forEach(vehicle=>{
+        $('#vehicle').append(
+        `<option value="${vehicle.vehicleId}">${vehicle.licensePlate}</option>`);
+        });
+
+        @*Populate the driver dropdown*@
+        drivers.filter(driver => driver.serviceType === serviceType).forEach(driver => {
+        const fullName = `${driver.firstName} ${driver.lastName}`;
+        $('#driverId').append(
+        `<option value="${driver.driverId}">${driver.fullName}</option>`);
+        });
+
+        @*Handle form submission*@
+        $('#bookingForm').on('submit', function(event) {
+        event.preventDefault();
+
+        @* Validate form inputs *@
+        const booking = {
+        bookingId: crypto.randomUUID(),
+        bookingDate: new Date().toISOString(),
+        fullName: $('#fullName').val(),
+        contactNumber: $('#contactNumber').val(),
+        pickupDateTime: $('#pickupDateTime').val(),
+        reason: $('#reasonSelect').val(),
+        driverId: $('#driverId').val(),
+        vehicleId: $('#vehicle').val(),
+        serviceType: serviceType,
+        pickupAddress: $('#pickupAddress').val(),
+        isSOS: false  @*Set to false for regular bookings*@
+        };
+
+        @*Store the booking in local storage or send it to the server*@
+        const bookings=JSON.parse(localStorage.getItem("bookings")|| "[]");
+        bookings.push(booking);
+        localStorage.setItem("bookings", JSON.stringify(bookings));
+
+        @*Redirect to the booking confirmation page*@
+        window.location.href = `/Home/ConfirmBooking?bookingId=${booking.bookingId}`;
+        });
+        });
+    </scripts>
+    }
 

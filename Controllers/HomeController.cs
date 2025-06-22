@@ -65,9 +65,9 @@ namespace HomeworkAssign1.Controllers
 
             return View();
         }
-        public ActionResult ConfirmBooking(string service)
+        public ActionResult ConfirmBooking(string bookingID)
         {
-            ViewBag.Message = "Your booking confirmed page.";
+            ViewBag.BookingID = bookingID;
 
             return View();
         }
