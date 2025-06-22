@@ -163,7 +163,7 @@
                 localStorage.setItem("bookings", JSON.stringify(bookings));
 
                 // Redirect to confirmation screen
-                window.location.href = `/Home/ConfirmBooking?bookingId=${booking.BookingID}`;
+                window.location.href = `/Home/ConfirmBooking?bookingId=${booking.bookingId}`;
             });
         });
     </script>
