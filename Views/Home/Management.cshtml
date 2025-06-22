@@ -1,7 +1,635 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Management</h2>
+@section Styles{
+    <style>
+        /* Requirement 7.7: Overall design and layout of screen */
+        .section-header {
+            margin-top: 40px;
+            margin-bottom: 30px;
+        }
 
+        .card-custom {
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        /* Requirement 7.6: Export functionality */
+        .btn-export {
+            background-color: #28a745;
+            color: white;
+        }
+
+        /* Requirement 3.4: Each driver/vehicle associated with one service */
+        .badge-service {
+            font-size: 0.85em;
+            padding: 5px 10px;
+            border-radius: 12px;
+        }
+
+        .badge-ALS {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .badge-BLS {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .badge-PT {
+            background-color: #ffc107;
+            color: white;
+        }
+
+        .badge-MUV {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .badge-EMA {
+            background-color: #6610f2;
+            color: white;
+        }
+
+        .badge-AA {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        /* Requirement 3.5: Image of vehicle and driver */
+        .thumbnail-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .action-buttons .btn {
+            margin-right: 5px;
+        }
+
+        .create-btn {
+            margin-left: 10px;
+        }
+    </style>
+}
+
+<div class="container">
+    <!-- Requirement 7: Driver and Vehicle Maintenance Functionality -->
+    <div class="section-header">
+        <h2 class="text-success">Manage Drivers & Vehicles</h2>
+    </div>
+
+    <!-- Search Section -->
+    <div class="card-custom">
+        <h4>Search</h4>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <input type="text" id="searchDriverName" class="form-control" placeholder="Search Driver by Name">
+            </div>
+            <div class="col-md-4">
+                <select id="searchDriverService" class="form-control">
+                    <option value="">All Driver Services</option>
+                    <option value="ALS">Advanced Life Support</option>
+                    <option value="BLS">Basic Life Support</option>
+                    <option value="PT">Patient Transport</option>
+                    <option value="MUV">Medical Utility Vehicle</option>
+                    <option value="EMA">Event Medical Ambulance</option>
+                    <option value="AA">Air Ambulance</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select id="searchVehicleService" class="form-control">
+                    <option value="">All Vehicle Services</option>
+                    <option value="ALS">Advanced Life Support</option>
+                    <option value="BLS">Basic Life Support</option>
+                    <option value="PT">Patient Transport</option>
+                    <option value="MUV">Medical Utility Vehicle</option>
+                    <option value="EMA">Event Medical Ambulance</option>
+                    <option value="AA">Air Ambulance</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100" onclick="searchData()">Search</button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>Drivers</h5>
+                    <div>
+                        <span id="driverCount" class="badge bg-info me-2">0 drivers</span>
+                        <button class="btn btn-success btn-sm create-btn" onclick="showDriverModal()">Create Driver</button>
+                    </div>
+                </div>
+                <div id="driverList" class="table-responsive"></div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>Vehicles</h5>
+                    <div>
+                        <span id="vehicleCount" class="badge bg-info me-2">0 vehicles</span>
+                        <button class="btn btn-success btn-sm create-btn" onclick="showVehicleModal()">Create Vehicle</button>
+                        <button class="btn btn-export btn-sm ms-2" onclick="exportVehicles()">Export</button>
+                    </div>
+                </div>
+                <div id="vehicleList" class="table-responsive"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Driver Modal -->
+<div class="modal fade" id="driverModal" tabindex="-1" aria-labelledby="driverModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="driverModalLabel">Add New Driver</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="driverForm">
+                    <input type="hidden" id="editDriverId">
+                    <div class="mb-3">
+                        <label for="driverFirstName" class="form-label">First Name*</label>
+                        <input type="text" class="form-control" id="driverFirstName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="driverLastName" class="form-label">Last Name*</label>
+                        <input type="text" class="form-control" id="driverLastName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="driverPhone" class="form-label">Phone*</label>
+                        <input type="tel" class="form-control" id="driverPhone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="driverServiceType" class="form-label">Service Type*</label>
+                        <select class="form-select" id="driverServiceType" required>
+                            <option value="ALS">Advanced Life Support</option>
+                            <option value="BLS">Basic Life Support</option>
+                            <option value="PT">Patient Transport</option>
+                            <option value="MUV">Medical Utility Vehicle</option>
+                            <option value="EMA">Event Medical Ambulance</option>
+                            <option value="AA">Air Ambulance</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="driverImage" class="form-label">Driver Photo</label>
+                        <input class="form-control" type="file" id="driverImage" accept="image/*">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveDriver()">Save Driver</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vehicle Modal -->
+<div class="modal fade" id="vehicleModal" tabindex="-1" aria-labelledby="vehicleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vehicleModalLabel">Add New Vehicle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="vehicleForm">
+                    <input type="hidden" id="editVehicleId">
+                    <div class="mb-3">
+                        <label for="vehicleType" class="form-label">Vehicle Type*</label>
+                        <input type="text" class="form-control" id="vehicleType" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="licensePlate" class="form-label">License Plate*</label>
+                        <input type="text" class="form-control" id="licensePlate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="vehicleServiceType" class="form-label">Service Type*</label>
+                        <select class="form-select" id="vehicleServiceType" required>
+                            <option value="ALS">Advanced Life Support</option>
+                            <option value="BLS">Basic Life Support</option>
+                            <option value="PT">Patient Transport</option>
+                            <option value="MUV">Medical Utility Vehicle</option>
+                            <option value="EMA">Event Medical Ambulance</option>
+                            <option value="AA">Air Ambulance</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="vehicleImage" class="form-label">Vehicle Photo</label>
+                        <input class="form-control" type="file" id="vehicleImage" accept="image/*">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveVehicle()">Save Vehicle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        // Initialize Bootstrap modals
+        var driverModal = new bootstrap.Modal(document.getElementById('driverModal'));
+        var vehicleModal = new bootstrap.Modal(document.getElementById('vehicleModal'));
+
+        // Initialize data if empty (Requirement 7: Minimum 10 drivers)
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!localStorage.getItem('drivers')) {
+                const defaultDrivers = [
+                    // Sample drivers for different services (Requirement 3.4)
+                    { id: crypto.randomUUID(), firstName: "John", lastName: "Doe", phoneNumber: "+27123456789", serviceType: "ALS", imageUrl: "/Images/Driver1.jpeg" },
+                    { id: crypto.randomUUID(), firstName: "Jane", lastName: "Smith", phoneNumber: "+27876543210", serviceType: "BLS", imageUrl: "/Images/Driver2.jpeg" },
+                    { id: crypto.randomUUID(), firstName: "Robert", lastName: "Johnson", phoneNumber: "+27111222333", serviceType: "PT", imageUrl: "/Images/Driver3.jpeg" },
+                    { id: crypto.randomUUID(), firstName: "Emily", lastName: "Paris", phoneNumber: "+27444555666", serviceType: "MUV", imageUrl: "/Images/Driver4.jpeg" },
+                    { id: crypto.randomUUID(), firstName: "Michael", lastName: "Jacks", phoneNumber: "+27777888999", serviceType: "EMA", imageUrl: "/Images/Driver5.jpeg" },
+                    { id: crypto.randomUUID(), firstName: "Sarah", lastName: "Linds", phoneNumber: "+27101010101", serviceType: "AA", imageUrl: "/Images/Driver6.jpeg" },
+                    { id: crypto.randomUUID(), firstName: "David", lastName: "Beckham", phoneNumber: "+27202020202", serviceType: "ALS", imageUrl: "/Images/Driver7.jpeg" },
+                    { id: crypto.randomUUID(), firstName: "Jessica", lastName: "Alba", phoneNumber: "+27303030303", serviceType: "BLS", imageUrl: "/Images/Driver8.jpeg" },
+                    { id: crypto.randomUUID(), firstName: "James", lastName: "Doe", phoneNumber: "+27404040404", serviceType: "PT", imageUrl: "/Images/Driver10.jpeg" },
+                    { id: crypto.randomUUID(), firstName: "Lisa", lastName: "Lissa", phoneNumber: "+27505050505", serviceType: "MUV", imageUrl: "/Images/Driver9.jpeg" }
+                ];
+                localStorage.setItem('drivers', JSON.stringify(defaultDrivers));
+            }
+
+            if (!localStorage.getItem('vehicles')) {
+                const defaultVehicles = [
+                    // Sample vehicles for different services (Requirement 3.4)
+                    { id: crypto.randomUUID(), type: "Type 1", licensePlate: "ABC123", serviceType: "ALS", imageUrl: "Images/bus1.png" },
+                    { id: crypto.randomUUID(), type: "Type 2", licensePlate: "DEF789", serviceType: "BLS", imageUrl: "Images/van1.jpeg" },
+                    { id: crypto.randomUUID(), type: "Type 3", licensePlate: "GHI456", serviceType: "PT", imageUrl: "Images/ download.png" },
+                    { id: crypto.randomUUID(), type: "Type 4", licensePlate: "JKL789", serviceType: "MUV", imageUrl: "Images/ambulance.png" },
+                    { id: crypto.randomUUID(), type: "Type 5", licensePlate: "MNO012", serviceType: "EMA", imageUrl: "Images/bus4.jpeg" },
+                    { id: crypto.randomUUID(), type: "Type 6", licensePlate: "PQR345", serviceType: "AA", imageUrl: "Images/air1.jpeg" },
+                    { id: crypto.randomUUID(), type: "Type 7", licensePlate: "STU678", serviceType: "ALS", imageUrl: "Images/bus2.jpeg" },
+                    { id: crypto.randomUUID(), type: "Type 8", licensePlate: "WXY901", serviceType: "BLS", imageUrl: "Images/van2.jpeg" },
+                    { id: crypto.randomUUID(), type: "Type 9", licensePlate: "VWX234", serviceType: "PT", imageUrl: "Images/bus3.png" },
+                    { id: crypto.randomUUID(), type: "Type 10", licensePlate: "YZA567", serviceType: "AA", imageUrl: "Images/air2.jpeg" }
+                ];
+                localStorage.setItem('vehicles', JSON.stringify(defaultVehicles));
+            }
+
+            displayData();
+        });
+
+        // ======================
+        // MODAL FUNCTIONS
+        // ======================
+        function showDriverModal() {
+            clearDriverForm();
+            document.getElementById('driverModalLabel').textContent = "Add New Driver";
+            driverModal.show();
+        }
+
+        function showVehicleModal() {
+            clearVehicleForm();
+            document.getElementById('vehicleModalLabel').textContent = "Add New Vehicle";
+            vehicleModal.show();
+        }
+
+        // ======================
+        // DRIVER FUNCTIONS
+        // ======================
+        // Requirement 7.3: CRUD of drivers
+        function saveDriver() {
+            const id = document.getElementById('editDriverId').value;
+            const firstName = document.getElementById('driverFirstName').value.trim();
+            const lastName = document.getElementById('driverLastName').value.trim();
+            const phone = document.getElementById('driverPhone').value.trim();
+            const serviceType = document.getElementById('driverServiceType').value;
+            const imageFile = document.getElementById('driverImage').files[0];
+
+            // Validation
+            if (!firstName || !lastName || !phone || !serviceType) {
+                alert("Please fill in all required fields");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const drivers = JSON.parse(localStorage.getItem('drivers')) || [];
+                const imageUrl = imageFile ? e.target.result :
+                    (drivers.find(d => d.id === id)?.imageUrl || "");
+
+                if (id) {
+                    // Update existing driver
+                    const index = drivers.findIndex(d => d.id === id);
+                    if (index !== -1) {
+                        drivers[index] = { ...drivers[index], firstName, lastName, phone, serviceType, imageUrl };
+                        alert("Driver updated successfully!");
+                    }
+                } else {
+                    // Add new driver (Requirement 7.3: Create)
+                    drivers.push({ id: crypto.randomUUID(), firstName, lastName, phone, serviceType, imageUrl });
+                    alert("Driver added successfully!");
+                }
+
+                localStorage.setItem('drivers', JSON.stringify(drivers));
+                clearDriverForm();
+                displayData();
+                driverModal.hide();
+            };
+
+            if (imageFile) {
+                reader.readAsDataURL(imageFile);
+            } else {
+                reader.onload({ target: { result: "" } });
+            }
+        }
+
+        function clearDriverForm() {
+            document.getElementById('editDriverId').value = '';
+            document.getElementById('driverFirstName').value = '';
+            document.getElementById('driverLastName').value = '';
+            document.getElementById('driverPhone').value = '';
+            document.getElementById('driverServiceType').value = 'ALS';
+            document.getElementById('driverImage').value = '';
+        }
+
+        // Requirement 7.3: Delete driver
+        function deleteDriver(id) {
+            if (!confirm("Are you sure you want to delete this driver?")) return;
+
+            const drivers = JSON.parse(localStorage.getItem('drivers')) || [];
+            const updatedDrivers = drivers.filter(d => d.id !== id); // Ensure .id matches structure
+
+            localStorage.setItem('drivers', JSON.stringify(updatedDrivers));
+
+            alert("Driver deleted successfully!");
+            displayData(); // Refresh table
+        }
+
+
+        // ======================
+        // VEHICLE FUNCTIONS
+        // ======================
+        // Requirement 7.4: CRUD of vehicles
+        function saveVehicle() {
+            const id = document.getElementById('editVehicleId').value;
+            const type = document.getElementById('vehicleType').value.trim();
+            const licensePlate = document.getElementById('licensePlate').value.trim();
+            const serviceType = document.getElementById('vehicleServiceType').value;
+            const imageFile = document.getElementById('vehicleImage').files[0];
+
+            // Validation
+            if (!type || !licensePlate || !serviceType) {
+                alert("Please fill in all required fields");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const vehicles = JSON.parse(localStorage.getItem('vehicles')) || [];
+                const imageUrl = imageFile ? e.target.result :
+                    (vehicles.find(v => v.id === id)?.imageUrl || "");
+
+                if (id) {
+                    // Update existing vehicle
+                    const index = vehicles.findIndex(v => v.id === id);
+                    if (index !== -1) {
+                        vehicles[index] = { ...vehicles[index], type, licensePlate, serviceType, imageUrl };
+                        alert("Vehicle updated successfully!");
+                    }
+                } else {
+                    // Add new vehicle (Requirement 7.4: Create)
+                    vehicles.push({ id: crypto.randomUUID(), type, licensePlate, serviceType, imageUrl });
+                    alert("Vehicle added successfully!");
+                }
+
+                localStorage.setItem('vehicles', JSON.stringify(vehicles));
+                clearVehicleForm();
+                displayData();
+                vehicleModal.hide();
+            };
+
+            if (imageFile) {
+                reader.readAsDataURL(imageFile);
+            } else {
+                reader.onload({ target: { result: "" } });
+            }
+        }
+
+        function clearVehicleForm() {
+            document.getElementById('editVehicleId').value = '';
+            document.getElementById('vehicleType').value = '';
+            document.getElementById('licensePlate').value = '';
+            document.getElementById('vehicleServiceType').value = 'ALS';
+            document.getElementById('vehicleImage').value = '';
+        }
+
+        // Requirement 7.4: Delete vehicle
+        function deleteVehicle(id) {
+            if (!confirm("Are you sure you want to delete this vehicle?")) return;
+
+            const vehicles = JSON.parse(localStorage.getItem('vehicles')) || [];
+            const updatedVehicles = vehicles.filter(v => v.id !== id);
+
+            localStorage.setItem('vehicles', JSON.stringify(updatedVehicles));
+
+            alert("Vehicle deleted successfully!");
+            displayData();
+        }
+
+
+        // ======================
+        // SEARCH & DISPLAY
+        // ======================
+        // Requirement 7.5: Search functionality
+        function searchData() {
+            const driverName = document.getElementById('searchDriverName').value.trim().toLowerCase();
+            const driverService = document.getElementById('searchDriverService').value;
+            const vehicleService = document.getElementById('searchVehicleService').value;
+
+            const drivers = JSON.parse(localStorage.getItem('drivers')) || [];
+            const vehicles = JSON.parse(localStorage.getItem('vehicles')) || [];
+
+            // Filter drivers by name and/or service
+            let filteredDrivers = drivers;
+            if (driverName) {
+                filteredDrivers = filteredDrivers.filter(d =>
+                    d.firstName.toLowerCase().includes(driverName) ||
+                    d.lastName.toLowerCase().includes(driverName)
+                );
+            }
+            if (driverService) {
+                filteredDrivers = filteredDrivers.filter(d => d.serviceType === driverService);
+            }
+
+            // Filter vehicles by service
+            let filteredVehicles = vehicles;
+            if (vehicleService) {
+                filteredVehicles = filteredVehicles.filter(v => v.serviceType === vehicleService);
+            }
+
+            displayDriverList(filteredDrivers);
+            displayVehicleList(filteredVehicles);
+        }
+
+        function displayData() {
+            const drivers = JSON.parse(localStorage.getItem('drivers')) || [];
+            const vehicles = JSON.parse(localStorage.getItem('vehicles')) || [];
+            displayDriverList(drivers);
+            displayVehicleList(vehicles);
+        }
+
+        // Requirement 7.1: Driver table list
+        function displayDriverList(drivers) {
+            const container = document.getElementById('driverList');
+            document.getElementById('driverCount').textContent = `${drivers.length} drivers`;
+
+            if (drivers.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No drivers found</div>';
+                return;
+            }
+
+            let html = `<table class="table table-striped table-hover">
+              <thead><tr>
+                 <th>Photo</th>
+                 <th>Name</th>
+                 <th>Phone</th>
+                 <th>Service</th>
+                 <th>Actions</th>
+        </tr></thead><tbody>`;
+
+            drivers.forEach(driver => {
+                const fullName = `${driver.firstName} ${driver.lastName}`;
+                const serviceBadge = getServiceBadge(driver.serviceType);
+
+                html += `<tr>
+            <td><img src="${driver.imageUrl || '/images/default-driver.png'}" class="thumbnail-img" alt="Driver"></td>
+            <td>${fullName}</td>
+            <td>${driver.phoneNumber}</td>
+            <td>${serviceBadge}</td>
+            <td class="action-buttons">
+                <button class="btn btn-warning btn-sm" onclick="editDriver('${driver.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteDriver('${driver.id}')">Delete</button>
+            </td>
+        </tr>`;
+            });
+
+            container.innerHTML = html + `</tbody></table>`;
+        }
+
+
+        // Requirement 7.2: Vehicle table list
+        function displayVehicleList(vehicles) {
+            const container = document.getElementById('vehicleList');
+            document.getElementById('vehicleCount').textContent = `${vehicles.length} vehicles`;
+
+            if (vehicles.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No vehicles found</div>';
+                return;
+            }
+
+            let html = `<table class="table table-striped table-hover">
+        <thead><tr>
+            <th>Photo</th>
+            <th>Type</th>
+            <th>License</th>
+            <th>Service</th>
+            <th>Actions</th>
+        </tr></thead><tbody>`;
+
+            vehicles.forEach(vehicle => {
+                const serviceBadge = getServiceBadge(vehicle.serviceType);
+
+                html += `<tr>
+            <td><img src="${vehicle.imageUrl || '/images/default-vehicle.png'}" class="thumbnail-img" alt="Vehicle"></td>
+            <td>${vehicle.type}</td>
+            <td>${vehicle.licensePlate}</td>
+            <td>${serviceBadge}</td>
+            <td class="action-buttons">
+                <button class="btn btn-warning btn-sm" onclick="editVehicle('${vehicle.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteVehicle('${vehicle.id}')">Delete</button>
+            </td>
+        </tr>`;
+            });
+
+            container.innerHTML = html + `</tbody></table>`;
+        }
+
+        
+        // Requirement 3.4: Service type display
+        function getServiceBadge(serviceType) {
+            const serviceNames = {
+                ALS: "Advanced Life Support",
+                BLS: "Basic Life Support",
+                PT: "Patient Transport",
+                MUV: "Medical Utility Vehicle",
+                EMA: "Event Medical Ambulance",
+                AA: "Air Ambulance"
+            };
+            return `<span class="badge badge-service badge-${serviceType}">${serviceNames[serviceType]}</span>`;
+        }
+
+        // Modified editDriver function for modal
+        function editDriver(id) {
+            const drivers = JSON.parse(localStorage.getItem('drivers')) || [];
+            const driver = drivers.find(d => d.id === id);
+
+            if (driver) {
+                document.getElementById('editDriverId').value = driver.id;
+                document.getElementById('driverFirstName').value = driver.firstName;
+                document.getElementById('driverLastName').value = driver.lastName;
+                document.getElementById('driverPhone').value = driver.phone;
+                document.getElementById('driverServiceType').value = driver.serviceType;
+
+                document.getElementById('driverModalLabel').textContent = "Edit Driver";
+                driverModal.show();
+            }
+        }
+
+        // Modified editVehicle function for modal
+        function editVehicle(id) {
+            const vehicles = JSON.parse(localStorage.getItem('vehicles')) || [];
+            const vehicle = vehicles.find(v => v.id === id);
+
+            if (vehicle) {
+                document.getElementById('editVehicleId').value = vehicle.id;
+                document.getElementById('vehicleType').value = vehicle.type;
+                document.getElementById('licensePlate').value = vehicle.licensePlate;
+                document.getElementById('vehicleServiceType').value = vehicle.serviceType;
+
+                document.getElementById('vehicleModalLabel').textContent = "Edit Vehicle";
+                vehicleModal.show();
+            }
+        }
+
+        // Requirement 7.6: Export functionality
+        function exportVehicles() {
+            const vehicles = JSON.parse(localStorage.getItem('vehicles')) || [];
+
+            if (vehicles.length === 0) {
+                alert("No vehicles to export");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "ID,Type,License Plate,Service Type\n";
+
+            vehicles.forEach(vehicle => {
+                csvContent += `${vehicle.id},${vehicle.type},${vehicle.licensePlate},${vehicle.serviceType}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "rescuebus_vehicles.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+}

@@ -1,10 +1,9 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "ConfirmBooking";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@section styles {
+@section Styles {
     <style>
         .confirmation-card {
             background-color: #f8f9fa;
@@ -15,7 +14,7 @@
         }
 
             .confirmation-card h2 {
-                font-size: 1.1em;
+                font-size: 1.5em;
                 margin-bottom: 20px;
             }
 
@@ -28,42 +27,64 @@
             .btn-back:hover {
                 background-color: #0056b3;
             }
-    </style>
 
+        .sos-highlight {
+            border-left: 5px solid red;
+        }
+    </style>
 }
 
-@section scripts {
+<div class="container">
+    <div id="bookingDetails" class="confirmation-card"></div>
+    <a href="@Url.Action("HomePage", "Home")" class="btn btn-back">← Back to Home</a>
+</div>
+
+@section Scripts {
     <script>
         $(document).ready(function () {
-            const parameters = new URLSearchParams(window.location.search);
-            const bookingId = parameters.get('bookingId');
+            const params = new URLSearchParams(window.location.search);
+            const bookingId = params.get('bookingId');
 
             if (!bookingId) {
-                $('#bookingDetails').html('<p class="text-danger">Booking ID is missing. Please try again</p>');
+                $('#bookingDetails').html('<p class="text-danger">Booking ID is missing. Please try again.</p>');
                 return;
             }
 
             const bookings = JSON.parse(localStorage.getItem('bookings') || "[]");
-            const booking = bookings.find(b => b.id === bookingId);
+            const booking = bookings.find(b => b.bookingId === bookingId);
 
             if (!booking) {
-                $('#bookingDetails').html('<p class="text-danger">Booking not found. Please try again</p>');
+                $('#bookingDetails').html('<p class="text-danger">Booking not found. Please try again.</p>');
                 return;
             }
 
+            const drivers = JSON.parse(localStorage.getItem("drivers") || "[]");
+            const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
+
+            const driver = drivers.find(d => d.id === booking.driverId);
+            const vehicle = vehicles.find(v => v.id === booking.vehicleId);
+
+            const driverName = driver ? `${driver.FirstName} ${driver.LastName}` : "Unknown";
+            const licensePlate = vehicle ? vehicle.LicensePlate : "Unknown";
+
+            const cardClass = booking.isSOS ? "confirmation-card sos-highlight" : "confirmation-card";
+
             const detailsHtml = `
-                <h2>Booking Confirmation</h2>
-                <p><strong>Service Type:</strong> ${booking.serviceType}</p>
-                <p><strong>Full Name:</strong> ${booking.fullName}</p>
-                <p><strong>Contact Number:</strong> ${booking.contactNumber}</p>
-                <p><strong>Pick-Up Date and Time:</strong> ${booking.pickupDateTime}</p>
-                <p><strong>Pick-Up Address:</strong> ${booking.pickupAddress}</p>
-                <p><strong>Reason:</strong> ${booking.reason}</p>
-                <p><strong>Driver Name:</strong> ${booking.driverName}</p>
-                <p><strong>Vehicle ID:</strong> ${booking.vehicleId}</p>
-                <p><strong>License Plate:</strong> ${booking.licensePlate}</p>
-                <p><strong>Booking Type:</strong> ${booking.isSOS ? "S.O.S" : "Standard"}</p>
-            `;
+                    <div class="${cardClass}">
+                        <h2>Booking Confirmation</h2>
+                        <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
+                        <p><strong>Date:</strong> ${new Date(booking.bookingDate).toLocaleString()}</p>
+                        <p><strong>Service Type:</strong> ${booking.serviceType}</p>
+                        <p><strong>Full Name:</strong> ${booking.fullName}</p>
+                        <p><strong>Contact Number:</strong> ${booking.contactNumber}</p>
+                        <p><strong>Pick-Up Date and Time:</strong> ${booking.pickupDateTime}</p>
+                        <p><strong>Pick-Up Address:</strong> ${booking.address}</p>
+                        <p><strong>Reason:</strong> ${booking.reason}</p>
+                        <p><strong>Driver:</strong> ${driverName}</p>
+                        <p><strong>Vehicle:</strong> ${licensePlate}</p>
+                        <p><strong>Booking Type:</strong> ${booking.isSOS ? "🚨 S.O.S" : "Standard"}</p>
+                    </div>
+                `;
 
             $('#bookingDetails').html(detailsHtml);
         });

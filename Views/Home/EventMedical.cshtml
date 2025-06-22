@@ -1,11 +1,11 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Event Medical Ambulance";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container mt-4">
     <h2 class="mb-4 text-success">Event Medical Ambulance Booking</h2>
-    @Html.Partial("_BookingForm", "Event Medical Ambulance")
+
+    @* Load the shared booking form partial with the specific service type *@
+    @Html.Partial("_BookingForm", "EMA")
 </div>
-
-

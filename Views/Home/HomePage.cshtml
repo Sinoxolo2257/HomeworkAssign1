@@ -1,8 +1,6 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Home";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
 }
 
 <div class="container mt-5">
@@ -13,110 +11,120 @@
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card h-100 border-0 shadow-lg">
-            <div class="card-body text-center p-5">
-                <div class="icon-container mb-4">
-                    <i class="bi bi-ambulance text-danger" style="font-size:3rem;"></i>
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        @* Added .row wrapper to align cards side-by-side *@
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-lg">
+                <div class="card-body text-center p-5">
+                    <div class="icon-container mb-4">
+                        <img src="~/Images/Ambulance.png" alt="Ambulance" class="img-fluid rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+                    </div>
+                    <h2 class="card-title">Book Ambulance</h2>
+                    <p class="card-text">Book a non-emergency smooth ride with our qualified team.</p>
+                    <a href="@Url.Action("ServiceType", "Home")" class="btn btn-primary btn-lg mt-3 px-4">Book Now</a> @* Link to ServiceType action in Home controller *@
                 </div>
-                <h2 class="card-title">Book Ambulance</h2>
-                <p class="card-text">Book a non-emergency smooth ride with our qualified team.</p>
-                <a href="@Url.Action("ServiceType", "Home")" class="btn btn-primary btn-lg mt-3 px-4">Book Now</a> @*Link to ServiceType action in Home controller*@
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-lg">
+                <div class="card-body text-center p-5">
+                    <div class="icon-container mb-4">
+                        <img src="~/images/sosstamp.png" alt="sosstamp" class="img-fluid rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+                    </div>
+                    <h2 class="card-title">Emergency SOS</h2>
+                    <p class="card-text">In case of emergency, press the SOS button to alert our team.</p>
+                    <button class="btn btn-danger btn-lg mt-3 px-4 sos-btn" onclick="generateSOSBooking()">S.O.S Booking</button> @* Calls the generate SOS booking function in JS *@
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="col-md-6">
-        <div class="card h-100 border-0 shadow-lg">
-            <div class="card-body text-center p-5">
-                <div class="icon-container mb-4">
-                    <i class="bi bi-exclamation-triangle-fill" style="font-size:3rem;"></i>
-                </div>
-                <h2 class="card-title">Emergency SOS</h2>
-                <p class="card-text">In case of emergency, press the SOS button to alert our team.</p>
-                <button class="btn btn-danger btn-lg mt-3 px-4 sos-btn" onclick="generateSOSBooking()">S.O.S Booking</button> @*Calls the generate SOS booking function in JS*@
-            </div>
-        </div>
-    </div>
-
 </div>
 
-
 @section Styles {
-<style>
-    .card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-radius: 15px;
-    }
-
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    <style>
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 15px;
         }
 
-    .icon-container {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #f8f9fa;
-        border-radius: 50%;
-    }
+            .card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            }
 
-    .bg-danger .icon-container {
-        background-color: #dc3545;
-    }
+        .icon-container {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 50%;
+            overflow: hidden;
+        }
 
-    .sos-btn {
-        animation: pulse 1.5s infinite;
-    }
-</style>
-                }
-@section scripts {
-    
+        .bg-danger .icon-container {
+            background-color: #dc3545;
+        }
+
+        .sos-btn {
+            animation: pulse 1.5s infinite;
+        }
+
+        @@keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+}
+
+@section Scripts {
     <script>
         function generateSOSBooking() {
-            //gets all the drivers and vehicles that are stored in local storage
             const drivers = JSON.parse(localStorage.getItem("drivers") || "[]");
             const vehicles = JSON.parse(localStorage.getItem("vehicles") || "[]");
 
             if (drivers.length === 0 || vehicles.length === 0) {
-                alert("No drivers or vehicles available. Please try again later.");
-                return;
-            } // Check if drivers and vehicles are available
-
-            // Randomly select a driver and vehicle from the available lists
-            const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
-            //since each driver and vehicle are restrained to one servoce this is to find a vehicle service type that matches the driver's service type
-            const randomVehicle = vehicles.find(vehicle => vehicle.serviceType === randomDriver.serviceType);
-
-            if (!randomVehicle) {
-                alert("No matching vehicle for this driver.");
+                alert("❌ Cannot create SOS booking. No drivers or vehicles available.");
                 return;
             }
 
-            // Create a SOS booking object with the selected driver and vehicle to pu in the booking congirmation page
+            // Pick any driver and any vehicle, no matching required
+            const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
+            const randomVehicle = vehicles[Math.floor(Math.random() * vehicles.length)];
+
             const booking = {
-                bookingId: crypto.randomUUID(), // generates a globally unique identifier for booking ID
-                bookingDate: new Date().toISOString,
+                bookingId: crypto.randomUUID(),
+                bookingDate: new Date().toISOString(),
                 fullName: "S.O.S Emergency",
-                contactNumber: "Unknown",
-                pickupDateTime: new Date().toISOString,
+                serviceType: "ANY", // or you can omit this if it's irrelevant
                 reason: "Emergency SOS Booking",
-                driverId: randomDriver.driverId,
-                vehicleId: randomVehicle.vehicleId,
-                serviceType: randomDriver.serviceType,
-                pickupAddress: "Auto-dispatched",
+                pickupDateTime: new Date().toISOString(),
+                vehicleId: randomVehicle.id,
+                address: "Auto-dispatched",
+                contactNumber: "Unknown",
+                driverId: randomDriver.id,
                 isSOS: true
             };
 
-            const bookings = JSON.parse(localStorage.getItem("bookings") || "[]"); // Get existing bookings from local storage
-            bookings.push(booking); // Add the new booking to the list
-            localStorage.setItem("bookings", JSON.stringify(bookings)); // Save the updated bookings list back to local storage
-            window.location.href = "@Url.Action("BookingConfirmation", "Home")"; // Redirect to BookingConfirmation action in Home controller
-            alert("S.O.S Booking has been successfully created!"); // Notify the user of successful booking
+            const bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+            bookings.push(booking);
+            localStorage.setItem("bookings", JSON.stringify(bookings));
+
+            alert("🚨 SOS booking dispatched immediately!");
+            window.location.href = `/Home/ConfirmBooking?bookingId=${booking.bookingId}`;
         }
     </script>
-    }
+}
+

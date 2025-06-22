@@ -1,12 +1,10 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Medical Utility Vehicle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4 text-success">MAdical Utility Vehicle Booking</h2>
-    @Html.Partial("_BookingForm", "Medical Utiity")
+    <h2 class="mb-4 text-success">Medical Utility Vehicle Booking</h2>
+
+    @Html.Partial("_BookingForm", "MUV")
 </div>
-
-
-
