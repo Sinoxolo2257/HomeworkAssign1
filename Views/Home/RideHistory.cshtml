@@ -3,5 +3,71 @@
     ViewBag.Title = "RideHistory";
 }
 
-<h2>RideHistory</h2>
+@section styles{
+    <style>
+        .history-wrapper{
+            margin-top:40px;
+        }
+        .table-responsive {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            color: white;
+            font-weight: bold;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+            text-align:center;
+            text-align:center;
+        }
+    </style>
+    }
+
+<div class="container history-wrapper">
+    <h2 class="text-center mb-4">Ride History</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped" id="rideHistoryTable">
+            <thead>
+                <tr>
+                    <th>Pick-Up Date & Time:</th>
+                    <th>Booking ID:</th>
+                    <th>Driver Name:</th>
+                    <th>Ambulance Type:</th>
+                    <th>Pick-Up Address:</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            const bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+
+            if (bookings.length === 0) {
+                $('#rideHistoryTable tbody').html(
+                    '<tr><td colspan="8" class="text-danger">No ride history available.</td></tr>');
+                return;
+            }
+
+            bookings.forEach(booking => {
+                const row = `<tr>
+                    <td>${new Date(b.pickupDateTime).toLocaleString()}</td>
+                    <td>${booking.bookingId}</td>
+                    <td>${booking.driverName}</td>
+                    <td>${booking.ambulanceType}</td>
+                    <td>${booking.pickupAddress}</td>
+                </tr>`;
+                $('#rideHistoryTable tbody').append(row);
+            });
+        })
+    </script>
+
+    }
 
